@@ -1,0 +1,286 @@
+{
+  "reconstruction": [
+    {
+      "id": "case1_43886",
+      "title": "Case 1 · SDD #43886",
+      "files": {
+        "gt": "reconstruction/case1_43886/gt.mp3",
+        "ours": "reconstruction/case1_43886/ours_refiner.mp3",
+        "earvae": "reconstruction/case1_43886/ear_vae.mp3",
+        "same_l": "reconstruction/case1_43886/same_l.mp3",
+        "levo2": "reconstruction/case1_43886/levo2.mp3",
+        "sa_open": "reconstruction/case1_43886/sa_open.mp3"
+      },
+      "hints": [{"t": 0, "text": "guitar harmonic & global panning"}, {"t": 22, "text": "moderate soft clip"}]
+    },
+    {
+      "id": "case2_1033253",
+      "title": "Case 2 · SDD #1033253",
+      "files": {
+        "gt": "reconstruction/case2_1033253/gt.mp3",
+        "ours": "reconstruction/case2_1033253/ours_refiner.mp3",
+        "earvae": "reconstruction/case2_1033253/ear_vae.mp3",
+        "same_l": "reconstruction/case2_1033253/same_l.mp3",
+        "levo2": "reconstruction/case2_1033253/levo2.mp3",
+        "sa_open": "reconstruction/case2_1033253/sa_open.mp3"
+      },
+      "hints": [{"t": 6, "text": "blinking high harmonic"}]
+    },
+    {
+      "id": "case3_25559",
+      "title": "Case 3 · SDD #25559",
+      "files": {
+        "gt": "reconstruction/case3_25559/gt.mp3",
+        "ours": "reconstruction/case3_25559/ours_refiner.mp3",
+        "earvae": "reconstruction/case3_25559/ear_vae.mp3",
+        "same_l": "reconstruction/case3_25559/same_l.mp3",
+        "levo2": "reconstruction/case3_25559/levo2.mp3",
+        "sa_open": "reconstruction/case3_25559/sa_open.mp3"
+      },
+      "hints": [{"t": 0, "text": "global noise floor"}, {"t": 18, "text": "guitar note"}]
+    },
+    {
+      "id": "case4_376240",
+      "title": "Case 4 · SDD #376240",
+      "files": {
+        "gt": "reconstruction/case4_376240/gt.mp3",
+        "ours": "reconstruction/case4_376240/ours_refiner.mp3",
+        "earvae": "reconstruction/case4_376240/ear_vae.mp3",
+        "same_l": "reconstruction/case4_376240/same_l.mp3",
+        "levo2": "reconstruction/case4_376240/levo2.mp3",
+        "sa_open": "reconstruction/case4_376240/sa_open.mp3"
+      },
+      "hints": [{"t": 0, "text": "global stereo energy"}, {"t": 4, "text": "hihat position"}]
+    },
+    {
+      "id": "case5_4883",
+      "title": "Case 5 · SDD #4883",
+      "files": {
+        "gt": "reconstruction/case5_4883/gt.mp3",
+        "ours": "reconstruction/case5_4883/ours_refiner.mp3",
+        "earvae": "reconstruction/case5_4883/ear_vae.mp3",
+        "same_l": "reconstruction/case5_4883/same_l.mp3",
+        "levo2": "reconstruction/case5_4883/levo2.mp3",
+        "sa_open": "reconstruction/case5_4883/sa_open.mp3"
+      },
+      "hints": [{"t": 0, "text": "global noise simulation"}]
+    },
+    {
+      "id": "case6_5339",
+      "title": "Case 6 · SDD #5339",
+      "files": {
+        "gt": "reconstruction/case6_5339/gt.mp3",
+        "ours": "reconstruction/case6_5339/ours_refiner.mp3",
+        "earvae": "reconstruction/case6_5339/ear_vae.mp3",
+        "same_l": "reconstruction/case6_5339/same_l.mp3",
+        "levo2": "reconstruction/case6_5339/levo2.mp3",
+        "sa_open": "reconstruction/case6_5339/sa_open.mp3"
+      },
+      "hints": [{"t": 0, "text": "global noise level"}, {"t": 27, "text": "kick punch"}]
+    }
+  ],
+  "generation": [
+    {
+      "id": "zh_141",
+      "title": "Demo 1",
+      "files": {
+        "baseline": "generation/zh_141/baseline_old.mp3",
+        "ours": "generation/zh_141/ours_new.mp3"
+      },
+      "hints": [{"t": 10, "text": "too-loud sax"}]
+    },
+    {
+      "id": "zh_102",
+      "title": "Demo 2",
+      "files": {
+        "baseline": "generation/zh_102/baseline_old.mp3",
+        "ours": "generation/zh_102/ours_new.mp3"
+      },
+      "hints": [{"t": 35, "text": "metallic string"}]
+    },
+    {
+      "id": "zh_128",
+      "title": "Demo 3",
+      "files": {
+        "baseline": "generation/zh_128/baseline_old.mp3",
+        "ours": "generation/zh_128/ours_new.mp3"
+      },
+      "hints": [{"t": 28, "text": "metallic resonance"}]
+    },
+    {
+      "id": "zh_104",
+      "title": "Demo 4",
+      "files": {
+        "baseline": "generation/zh_104/baseline_old.mp3",
+        "ours": "generation/zh_104/ours_new.mp3"
+      },
+      "hints": [{"t": 0, "text": "global sub energy and phase correlation"}]
+    },
+    {
+      "id": "zh_190",
+      "title": "Demo 5",
+      "files": {
+        "baseline": "generation/zh_190/baseline_old.mp3",
+        "ours": "generation/zh_190/ours_new.mp3"
+      },
+      "hints": [{"t": 11, "text": "metallic resonance"}]
+    },
+    {
+      "id": "en_26",
+      "title": "Demo 6",
+      "files": {
+        "baseline": "generation/en_26/baseline_old.mp3",
+        "ours": "generation/en_26/ours_new.mp3"
+      },
+      "hints": [{"t": 0, "text": "global close-to-far energy decay (vocal position)"}]
+    },
+    {
+      "id": "zh_195",
+      "title": "Demo 7",
+      "files": {
+        "baseline": "generation/zh_195/baseline_old.mp3",
+        "ours": "generation/zh_195/ours_new.mp3"
+      },
+      "hints": [{"t": 17, "text": "wrong pitch & metal"}]
+    },
+    {
+      "id": "zh_140",
+      "title": "Demo 8",
+      "files": {
+        "baseline": "generation/zh_140/baseline_old.mp3",
+        "ours": "generation/zh_140/ours_new.mp3"
+      },
+      "hints": [{"t": 0, "text": "global stereo image"}]
+    },
+    {
+      "id": "zh_110",
+      "title": "Demo 9",
+      "files": {
+        "baseline": "generation/zh_110/baseline_old.mp3",
+        "ours": "generation/zh_110/ours_new.mp3"
+      },
+      "hints": [{"t": 43, "text": "metallic resonance"}]
+    },
+    {
+      "id": "zh_118",
+      "title": "Demo 10",
+      "files": {
+        "baseline": "generation/zh_118/baseline_old.mp3",
+        "ours": "generation/zh_118/ours_new.mp3"
+      },
+      "hints": [{"t": 18, "text": "metallic resonance"}]
+    }
+  ],
+  "show": [
+    {
+      "id": "show_demo1",
+      "title": "Demo 1",
+      "files": { "ours": "show/demo1.mp3" }
+    },
+    {
+      "id": "show_demo2",
+      "title": "Demo 2",
+      "files": { "ours": "show/demo2.mp3" }
+    },
+    {
+      "id": "show_demo3",
+      "title": "Demo 3",
+      "files": { "ours": "show/demo3.mp3" }
+    },
+    {
+      "id": "show_demo4",
+      "title": "Demo 4",
+      "files": { "ours": "show/demo4.mp3" }
+    },
+    {
+      "id": "show_demo5",
+      "title": "Demo 5",
+      "files": { "ours": "show/demo5.mp3" }
+    },
+    {
+      "id": "show_demo6",
+      "title": "Demo 6",
+      "files": { "ours": "show/demo6.mp3" }
+    },
+    {
+      "id": "show_demo7",
+      "title": "Demo 7",
+      "files": { "ours": "show/demo7.mp3" }
+    },
+    {
+      "id": "show_demo8",
+      "title": "Demo 8",
+      "files": { "ours": "show/demo8.mp3" }
+    }
+  ],
+  "latent_probe": [
+    {
+      "id": "probe_1004034",
+      "title": "Demo 1",
+      "gt": "latent_probe/gt/1004034/gt.mp3",
+      "models": {
+        "ours":   { "low": "latent_probe/ours/1004034/low_decode.mp3",   "high": "latent_probe/ours/1004034/high_decode.mp3" },
+        "earvae": { "low": "latent_probe/ear_vae/1004034/low_decode.mp3","high": "latent_probe/ear_vae/1004034/high_decode.mp3" },
+        "levo2":  { "low": "latent_probe/levo2/1004034/low_decode.mp3",  "high": "latent_probe/levo2/1004034/high_decode.mp3" },
+        "samel":  { "low": "latent_probe/same_l/1004034/low_decode.mp3", "high": "latent_probe/same_l/1004034/high_decode.mp3" },
+        "saopen": { "low": "latent_probe/stable_audio_open/1004034/low_decode.mp3", "high": "latent_probe/stable_audio_open/1004034/high_decode.mp3" }
+      }
+    },
+    {
+      "id": "probe_1009671",
+      "title": "Demo 2",
+      "gt": "latent_probe/gt/1009671/gt.mp3",
+      "models": {
+        "ours":   { "low": "latent_probe/ours/1009671/low_decode.mp3",   "high": "latent_probe/ours/1009671/high_decode.mp3" },
+        "earvae": { "low": "latent_probe/ear_vae/1009671/low_decode.mp3","high": "latent_probe/ear_vae/1009671/high_decode.mp3" },
+        "levo2":  { "low": "latent_probe/levo2/1009671/low_decode.mp3",  "high": "latent_probe/levo2/1009671/high_decode.mp3" },
+        "samel":  { "low": "latent_probe/same_l/1009671/low_decode.mp3", "high": "latent_probe/same_l/1009671/high_decode.mp3" },
+        "saopen": { "low": "latent_probe/stable_audio_open/1009671/low_decode.mp3", "high": "latent_probe/stable_audio_open/1009671/high_decode.mp3" }
+      }
+    }
+  ],
+  "refiner_ablation": [
+    {
+      "id": "refiner_1067070",
+      "title": "Demo 1",
+      "files": {
+        "gt": "refiner_ablation/case1_1067070/gt.mp3",
+        "without_refiner": "refiner_ablation/case1_1067070/without_refiner.mp3",
+        "with_refiner": "refiner_ablation/case1_1067070/with_refiner.mp3"
+      },
+      "hints": [{"t": 0, "text": "first few punch energy and groove"}]
+    },
+    {
+      "id": "refiner_73149",
+      "title": "Demo 2",
+      "files": {
+        "gt": "refiner_ablation/case2_73149/gt.mp3",
+        "without_refiner": "refiner_ablation/case2_73149/without_refiner.mp3",
+        "with_refiner": "refiner_ablation/case2_73149/with_refiner.mp3"
+      },
+      "hints": [{"t": 0, "text": "global kick phase"}, {"t": 22, "text": "OD guitar saturation"}]
+    }
+  ],
+  "bandmode": [
+    {
+      "id": "band_43886",
+      "title": "Demo 1",
+      "files": {
+        "gt": "bandmode/default/gt_43886.mp3",
+        "default": "bandmode/default/case_43886.mp3",
+        "noband": "bandmode/noband/case_43886.mp3"
+      },
+      "hints": [{"t": 0, "text": "global guitar position and mid-high freq harmonics"}]
+    },
+    {
+      "id": "band_376240",
+      "title": "Demo 2",
+      "files": {
+        "gt": "bandmode/default/gt_376240.mp3",
+        "default": "bandmode/default/case_376240.mp3",
+        "noband": "bandmode/noband/case_376240.mp3"
+      },
+      "hints": [{"t": 10, "text": "guitar saturation"}]
+    }
+  ]
+}

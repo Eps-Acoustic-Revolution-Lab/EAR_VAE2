@@ -1,0 +1,18 @@
+{
+  "model": {
+    "gen": {
+      "config": {
+        "C0": 64,
+        "D": 128,
+        "use_vae": true,
+        "refiner": {
+          "type": "banded",
+          "dim": 256,
+          "intermediate_dim": 1024,
+          "num_layers": 12,
+          "layer_norm_eps": 1e-5
+        }
+      }
+    }
+  }
+}

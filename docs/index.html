@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="light dark" />
+  <title>εar-VAE2 — Fourier is Frontier: Frequency-Aware Autoencoding for High-Fidelity Music Reconstruction</title>
+  <meta name="description" content="Demo page for εar-VAE2, a spectral-domain music autoencoder with frequency-aware activations and a duplex-aware refiner. Reconstruction and generation audio examples, interactive diagrams, and results." />
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="css/style.css" />
+  <script>
+    /* set theme before first paint to avoid flash; ?theme=dark|light overrides */
+    (function () {
+      var t = null;
+      var m = /[?&]theme=(dark|light)/.exec(location.search);
+      if (m) t = m[1];
+      if (!t) { try { t = localStorage.getItem("earvae2-theme"); } catch (e) {} }
+      if (!t) t = (window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches) ? "dark" : "light";
+      document.documentElement.setAttribute("data-theme", t);
+    })();
+  </script>
+</head>
+<body>
+
+  <!-- ======================= nav ======================= -->
+  <header class="nav">
+    <div class="nav-inner">
+      <a class="wordmark" href="#top"><em>ε</em>ar-VAE2</a>
+      <nav class="nav-links" id="navLinks">
+        <a href="#overview">Overview</a>
+        <a href="#architecture">Architecture</a>
+        <a href="#snakebeta">Spec-SnakeBeta</a>
+        <a href="#refiner">Refiner</a>
+        <a href="#results">Results</a>
+        <a href="#probe">Probe</a>
+        <a href="#audio">Audio</a>
+      </nav>
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle light / dark mode">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main id="top">
+
+    <!-- ======================= hero ======================= -->
+    <section class="hero">
+      <div class="container">
+        <h1 class="hero-model"><em>ε</em>ar-VAE2</h1>
+        <div class="hero-title">Fourier is Frontier: Frequency-Aware Autoencoding<br />for High-Fidelity Music Reconstruction</div>
+        <div class="hero-authors" data-authors-row>
+          <span data-authors>Anonymous authors</span>
+        </div>
+        <p class="hero-lede">
+          A spec-domain autoencoder compressing <strong>48&nbsp;kHz stereo</strong> audio into a
+          <strong>25&nbsp;Hz</strong> sequence of continuous latents —
+          a <strong>1920×</strong> temporal downsampling — through two frequency-aware components:
+          <strong>Spec-SnakeBeta</strong> and a <strong>Duplex-Aware Refiner</strong>.
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" data-link-paper href="assets/paper.pdf" target="_blank" rel="noopener">Read the paper</a>
+          <a class="btn" href="#audio">Listen to examples</a>
+          <a class="btn" data-link-arxiv href="#" target="_blank" rel="noopener">arXiv</a>
+          <a class="btn" data-link-github href="#" target="_blank" rel="noopener">Code</a>
+          <a class="btn" data-link-hf href="#" target="_blank" rel="noopener">Models</a>
+        </div>
+      </div>
+      <div class="hero-spectrum"><canvas id="heroSpectrum" aria-hidden="true"></canvas></div>
+    </section>
+
+    <!-- ======================= 01 overview ======================= -->
+    <section class="block" id="overview">
+      <div class="container">
+        <div class="sec-head">
+          <span class="sec-numeral">01</span>
+          <h2>Which factors make the LDM-base generation struggling?</h2>
+          <span class="sec-kicker">Motivation</span>
+        </div>
+        <p class="lead">
+          Latent-diffusion music generators operate on the latent space of a VAE — whatever spectral detail,
+          phase structure, or stereo image the decoder cannot reconstruct is unavailable to
+          <strong>any</strong> downstream generator. At the aggressive temporal compression these systems
+          demand, decoders show three recurring failure modes. We ask: <strong>at a fixed compression rate,
+          which modeling choices best preserve what matters?</strong>
+        </p>
+        <div class="card-grid cols-3">
+          <div class="card">
+            <div class="card-numeral">01</div>
+            <h3>High-frequency detail lost</h3>
+            <p>A channel-wise activation reuses one response across all spectral bins and cannot adapt directly to physical frequency.</p>
+            <div class="arrow-note">→ Spec-SnakeBeta · 03</div>
+          </div>
+          <div class="card">
+            <div class="card-numeral">02</div>
+            <h3>Phase smeared across frames</h3>
+            <p>Phase error grows monotonically with frequency and saturates near random (π/2) above 4&nbsp;kHz.</p>
+            <div class="arrow-note">→ Complex STFT architecture · 02</div>
+          </div>
+          <div class="card">
+            <div class="card-numeral">03</div>
+            <h3>Stereo image collapses</h3>
+            <p>A uniform corrector spends capacity in the wrong place; localization cues differ across the spectrum.</p>
+            <div class="arrow-note">→ Duplex-Aware Refiner · 04</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================= 02 architecture ======================= -->
+    <section class="block" id="architecture">
+      <div class="container">
+        <div class="sec-head">
+          <span class="sec-numeral">02</span>
+          <h2>Why does the architecture work?</h2>
+          <span class="sec-kicker">Spectral-domain VAE-GAN</span>
+        </div>
+        <p class="body-copy">
+          Stereo audio is transformed by STFT into a complex spectrogram; a 2D-convolutional Spec Encoder with
+          <strong>delayed stereo fusion</strong> compresses it to a 25&nbsp;Hz continuous latent, and a mirrored Spec Decoder with
+          <strong>early splitting</strong> reconstructs a coarse spectrogram. The Duplex-Aware Refiner then applies band-specific
+          complex corrections and restores the Nyquist bin. A paired iSTFT then removes the explicit analysis margin and
+          returns exactly the original number of waveform samples.
+          <span class="small-note">Click a stage to inspect it.</span>
+        </p>
+        <div class="panel mt-2">
+          <div id="archPipe"></div>
+          <div class="arch-detail" id="archDetail">
+            <h4><span class="tag">PIPELINE</span>εar-VAE2 at a glance</h4>
+            <p>Waveform → STFT → complex spectrogram → encoder → 25 Hz latent → decoder → duplex-aware refinement → iSTFT.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================= 03 spec-snakebeta ======================= -->
+    <section class="block" id="snakebeta">
+      <div class="container">
+        <div class="sec-head">
+          <span class="sec-numeral">03</span>
+          <h2>How should activations adapt to frequency?</h2>
+          <span class="sec-kicker">Frequency-axis periodic activation</span>
+        </div>
+        <p class="body-copy">
+          BigVGAN’s SnakeBeta activation, <i>x + β⁻¹ sin²(αx)</i>, learns its periodicity <strong>per channel</strong> — in the
+          spectral domain that mixes all frequencies onto one curve. Because each STFT bin corresponds to a fixed physical
+          frequency, Spec-SnakeBeta learns one (α<sub>f</sub>, β<sub>f</sub>) pair <strong>per frequency bin</strong> and shares it
+          across feature channels. A <strong>frequency-proportional initialization in log-parameter space</strong> starts near identity
+          at low bins and becomes progressively more oscillatory toward high frequencies. Drag the frequency slider to inspect it.
+        </p>
+        <p class="body-copy mt-3">
+          <strong>From Snake to Spec-SnakeBeta.</strong>&nbsp;
+          Standard activations such as ReLU and GELU do not provide an explicit periodic basis. On bounded intervals a
+          neural network can still approximate periodic functions; the Snake family instead supplies a periodic residual
+          directly through three design stages:
+        </p>
+        <div class="card-grid cols-3 mt-2">
+          <div class="card">
+            <div class="card-numeral">I</div>
+            <h3>Snake</h3>
+            <div class="formula" style="font-size: 13px; padding: 8px 10px;">
+              y&nbsp;=&nbsp;x&nbsp;+&nbsp;<i>α</i><sup>−1</sup>&nbsp;sin²(<i>α</i>&nbsp;·&nbsp;x)
+            </div>
+            <p>A single parameter <i>α</i> controls both oscillation frequency and inverse amplitude (1/<i>α</i>) — the two degrees of freedom are optimization-coupled.</p>
+          </div>
+          <div class="card">
+            <div class="card-numeral">II</div>
+            <h3>SnakeBeta</h3>
+            <div class="formula" style="font-size: 13px; padding: 8px 10px;">
+              y&nbsp;=&nbsp;x&nbsp;+&nbsp;<i>β</i><sup>−1</sup>&nbsp;sin²(<i>α</i>&nbsp;·&nbsp;x)
+            </div>
+            <p>Decouples frequency (<i>α</i>) from amplitude (<i>β</i>) with independent gradient paths. Per-channel — all frequency bins share one (<i>α</i>,&nbsp;<i>β</i>) pair.</p>
+          </div>
+          <div class="card">
+            <div class="card-numeral">III</div>
+            <h3>Spec-SnakeBeta</h3>
+            <div class="formula" style="font-size: 13px; padding: 8px 10px;">
+              y<sub>c,f</sub>&nbsp;=&nbsp;x<sub>c,f</sub>&nbsp;+&nbsp;<i>β</i><sub>f</sub><sup>−1</sup>&nbsp;sin²(<i>α</i><sub>f</sub>&nbsp;·&nbsp;x<sub>c,f</sub>)
+            </div>
+            <p>One log-space response per physical frequency, shared across feature channels — near-identity at low bins and more oscillatory at high.</p>
+          </div>
+        </div>
+        <div class="formula mt-2">y<sub>c,f</sub>&nbsp;=&nbsp;x<sub>c,f</sub>&nbsp;+&nbsp;<i>β</i><sub>f</sub><sup>−1</sup>&nbsp;sin²(<i>α</i><sub>f</sub>&nbsp;·&nbsp;x<sub>c,f</sub>),&nbsp;&nbsp;α<sub>f</sub><sup>(0)</sup>&nbsp;≈&nbsp;freq<sub>f</sub>&nbsp;/&nbsp;f̄</div>
+        <div class="sb-layout mt-3">
+          <div class="sb-canvas-wrap">
+            <canvas class="plot" id="sbPlot" width="600" height="380" style="aspect-ratio: 600 / 380; max-height: 400px;" style="width: 100%; height: auto; display: block; aspect-ratio: 600 / 380;"></canvas>
+            <div class="sb-row mt-2">
+              <span class="sb-label">frequency</span>
+              <input type="range" id="sbFreq" min="0" max="1000" value="247" />
+              <span class="sb-value" id="sbFreqVal">6.0 kHz</span>
+              <button class="metric-tab" id="sbSweep" type="button">▶ sweep</button>
+            </div>
+          </div>
+          <div class="sb-controls">
+            <div class="sb-row">
+              <span class="sb-label">parameterization</span>
+              <span class="seg" id="sbMode">
+                <button data-mode="snake" type="button">Snake</button>
+                <button data-mode="channel" type="button">SnakeBeta</button>
+                <button data-mode="freq" type="button" class="active">Spec-SnakeBeta(log-F)</button>
+              </span>
+            </div>
+            <div class="sb-row">
+              <span class="sb-label">log-F α<sub>f</sub> initialization</span>
+            </div>
+            <canvas class="plot" id="sbInit" width="600" height="190" style="aspect-ratio: 600 / 190; max-height: 200px;" style="width: 100%; height: auto; display: block; aspect-ratio: 600 / 190;"></canvas>
+            <div class="small-note">
+              Top: activation curves. Faint curves show other frequencies; the dashed line is the identity.
+              Bottom: the frequency-proportional initialization α<sub>f</sub> = freq<sub>f</sub>/f̄ over the 480 bins,
+              stored in log-parameter space (f̄ ≈ 11.98&nbsp;kHz). After training, α adapts most strongly in 0–5&nbsp;kHz (shaded).
+              “Channel” here means a hidden feature channel, not the left/right audio channels. Spec-SnakeBeta(CF) starts from
+              the same frequency curve as Spec-SnakeBeta(log-F) but optimizes a separate copy for every
+              (channel, frequency) pair; see the ablation below.
+            </div>
+          </div>
+        </div>
+
+        <div class="panel mt-4">
+          <div class="panel-title">Ablation — seven activation configurations (controlled mid-scale, 42.6M generator)</div>
+          <div class="metric-tabs" id="actTabs"></div>
+          <div id="actChart"></div>
+          <div class="arch-detail activation-detail" id="actDetail" aria-live="polite">
+            <h4><span class="tag">LOG-F</span>Spec-SnakeBeta(log-F)</h4>
+            <p>Frequency-indexed and shared across feature channels. The initial α response is proportional to normalized physical frequency, while β starts at 1; both positive parameters are optimized in log space.</p>
+          </div>
+          <div class="chart-note" id="actNote"></div>
+        </div>
+        <div class="callout mt-3">
+          <strong>Channel sharing is an inductive bias, not just a compression trick.</strong>
+          Spec-SnakeBeta(log-F) learns one response per frequency and shares it across feature channels. It leads the fully
+          independent Spec-SnakeBeta(CF) alternative on all six three-seed mean metrics while using
+          <strong>far fewer activation parameters</strong>, and achieves the best overall mean on four of six metrics.
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================= 04 refiner ======================= -->
+    <section class="block" id="refiner">
+      <div class="container">
+        <div class="sec-head">
+          <span class="sec-numeral">04</span>
+          <h2>Where should the refiner spend its capacity?</h2>
+          <span class="sec-kicker">Psychoacoustically placed corrections</span>
+        </div>
+        <div class="jump-row">
+          <a class="jump-link" href="#audio-refiner">↓ Listen: refiner ablation</a>
+          <a class="jump-link" href="#audio-bandmode">↓ Listen: bandmode ablation</a>
+        </div>
+        <p class="body-copy">
+          Human localization relies on interaural <strong>timing (phase)</strong> at low frequencies and interaural
+          <strong>level (magnitude)</strong> at high frequencies — the classical duplex theory (Rayleigh, 1907). Per-frequency
+          error analysis of the trained decoder shows the same asymmetry: magnitude error peaks in the 1–4&nbsp;kHz mid band while
+          phase error saturates above 4&nbsp;kHz. The refiner therefore constrains its residual outputs to the
+          <strong>cue emphasized in each band</strong>. Its output layers are zero-initialized, so refinement starts as an
+          identity mapping that preserves the frozen decoder output. Hover the bands.
+        </p>
+        <div class="panel mt-2">
+          <div class="panel-title">Band placement on the physical frequency axis</div>
+          <div class="bandmap-wrap" id="bandMap"></div>
+          <div class="arch-detail" id="bandDetail">
+            <h4><span class="tag">DUPLEX</span>Three bands, three correction types</h4>
+            <p>Phase-only below 1.5&nbsp;kHz · joint magnitude &amp; phase in 1.5–4&nbsp;kHz · magnitude-only above 4&nbsp;kHz.</p>
+          </div>
+        </div>
+
+        <div class="panel mt-3">
+          <div class="panel-title">Why the bands sit where they do — per-frequency error profiles (schematic)</div>
+          <div class="bandmap-wrap" id="errorProfiles"></div>
+          <div class="chart-note">Schematic redraw of the per-frequency analysis on the trained Stage-2 decoder: log-magnitude error peaks broadly in the 1–4&nbsp;kHz mid band, while phase error grows monotonically and approaches π/2 above 4&nbsp;kHz. Dashed lines mark the 1.5 / 4&nbsp;kHz band boundaries.</div>
+        </div>
+
+        <div class="panel mt-3">
+          <div class="panel-title">Ablation — banded vs unconstrained refinement</div>
+          <div class="tbl-wrap" style="margin-top:0">
+            <table class="booktabs" id="bandTable"></table>
+          </div>
+          <div class="chart-note">Controlled refiner-only setting from the same frozen decoder. The banded head predicts ≈45% fewer residual dimensions, improves both spectral distances and three of four targeted spatial-cue errors, and receives a higher mean paired score from professional engineers; HF IPD remains within 0.6%. IPD/ILD are mean absolute deviations below 1.5&nbsp;kHz (LF) and above 4&nbsp;kHz (HF); the paired 1–10 rating is mapped to [0,1].</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================= 05 results ======================= -->
+    <section class="block" id="results">
+      <div class="container">
+        <div class="sec-head">
+          <span class="sec-numeral">05</span>
+          <h2>When does the metric work?</h2>
+          <span class="sec-kicker">Reconstruction · generation</span>
+        </div>
+        <div class="jump-row">
+          <a class="jump-link" href="#audio-gen">↓ Listen: gen demos</a>
+          <a class="jump-link" href="#audio-recon">↓ Listen: reconstruction</a>
+          <a class="jump-link" href="#audio-downstream">↓ Listen: downstream generation</a>
+        </div>
+
+        <p class="body-copy">
+          Reconstruction on the 546-track Song Describer Dataset against four recent open-source audio VAEs, each at its
+          native operating condition. The chart reports point estimates; cross-system numbers are <strong>competitive rather than strictly
+          matched</strong>; the base-vs-full comparison within εar-VAE2 is controlled.
+        </p>
+        <aside class="metric-hint" role="note" aria-label="Metric interpretation hint">
+          <div class="metric-hint-tag">TIP · INTERPRET METRICS WITH CARE</div>
+          <p>
+            Reconstruction metrics inherit a <strong>representation bias</strong>: waveform-domain measures such as
+            SI-SDR naturally favor time-domain modeling, while frequency-domain measures such as STFT Distance can favor
+            spectral models trained with closely related objectives. We also observe increasing <strong>metric overfitting</strong>
+            across current audio autoencoders: aggregate scores—including full-band STFT Distance and SI-SDR—can improve
+            without faithfully tracking the acoustic detail that determines perceived quality in complex music. Treat these
+            numbers as complementary diagnostics, and prioritize the audible differences in the listening examples.
+          </p>
+        </aside>
+        <div class="panel mt-2">
+          <div class="panel-title">Main reconstruction results</div>
+          <div class="metric-tabs" id="mainTabs"></div>
+          <div id="mainChart"></div>
+          <div class="arch-detail result-detail" id="mainDetail" aria-live="polite">
+            <h4><span class="tag">48 KHZ · 25 HZ</span>εar-VAE2 (full)</h4>
+            <p>Runs at 48&nbsp;kHz with a 25.0&nbsp;Hz continuous latent. This is the complete decoder with the Duplex-Aware Refiner; the base εar-VAE2 result uses the same operating condition.</p>
+          </div>
+          <div class="chart-note" id="mainNote"></div>
+        </div>
+
+        <div class="card-grid cols-2 mt-4">
+          <div class="panel">
+            <div class="panel-title">Downstream generation — SongBench</div>
+            <div id="radarChart"></div>
+            <div class="legend">
+              <span><span class="swatch sw-blue"></span>εar-VAE2 (full)</span>
+              <span><span class="swatch sw-mid"></span>εar-VAE2 (w/o Refiner)</span>
+              <span><span class="swatch sw-muted"></span>Levo 2 VAE</span>
+            </div>
+            <div class="chart-note">Axis range 5–8 for readability. 100 EN + 100 ZH generated songs, matched conditioning and CFG; the renderer is retrained per latent space.</div>
+          </div>
+          <div class="panel">
+            <div class="panel-title">Downstream generation — SongEval</div>
+            <div id="songevalChart"></div>
+            <div class="legend">
+              <span><span class="swatch sw-blue"></span>εar-VAE2 (full)</span>
+              <span><span class="swatch sw-mid"></span>εar-VAE2 (w/o Refiner)</span>
+              <span><span class="swatch sw-muted"></span>Levo 2 VAE</span>
+            </div>
+            <div class="chart-note">Truncated axis 3.5–4.6. The refiner improves every axis further over the base decoder — refinement benefits generated outputs, not only reconstruction.</div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ======================= 06 latent probe ======================= -->
+    <section class="block" id="probe">
+      <div class="container">
+        <div class="sec-head">
+          <span class="sec-numeral">06</span>
+          <h2>What does the latent organize along time?</h2>
+          <span class="sec-kicker">Temporal-frequency probe</span>
+        </div>
+        <div class="jump-row">
+          <a class="jump-link" href="#latent-probe">↓ Listen: probe audio</a>
+        </div>
+        <p class="body-copy">
+          Musical content varies at markedly different rates in time: percussion, onsets, and rhythmic groove change
+          fast, while sustained harmony and timbre change slowly. A latent that mirrors acoustic structure might
+          therefore route fast and slow temporal variation to different content types. To test this, we encode a clip
+          to its latent <strong>z</strong>&nbsp;∈&nbsp;ℝ<sup>C×T</sup>, take the <strong>real FFT along the temporal axis</strong>, and split the
+          temporal-frequency bins at the midpoint:
+        </p>
+        <div class="card-grid cols-2 mt-2">
+          <div class="card">
+            <div class="card-numeral">Low</div>
+            <h3>z<sub>low</sub> — slow-varying half</h3>
+            <p>Zeroing the upper temporal-frequency half and inverse-FFT back to the time domain. This retains the
+              <strong>slowly changing</strong> components of the latent sequence. When decoded, it reconstructs the
+              <strong>sustained</strong> content of the audio — long harmonic tones, pads, and timbre texture that evolve
+              smoothly over time.</p>
+          </div>
+          <div class="card">
+            <div class="card-numeral">High</div>
+            <h3>z<sub>high</sub> — fast-varying half</h3>
+            <p>Zeroing the lower temporal-frequency half and inverse-FFT back. This isolates the <strong>rapidly
+              changing</strong> components. When decoded, it reconstructs the <strong>rhythmic groove</strong> of the audio —
+              percussive onsets, transient attacks, and beat-level energy fluctuations.</p>
+          </div>
+        </div>
+        <p class="body-copy mt-2">
+          Each half is then <strong>decoded separately</strong> through the model's decoder. If a model cleanly separates
+          sustained content from rhythmic content along the temporal axis of its latent, the two decoded signals will show
+          distinct spectral profiles. We measure this separation with spectral centroid:
+        </p>
+        <div class="formula mt-2"><i>ρ</i>&nbsp;=&nbsp;centroid(<i>z</i><sub>low</sub>&nbsp;→&nbsp;audio)&nbsp;/&nbsp;centroid(<i>z</i><sub>high</sub>&nbsp;→&nbsp;audio)</div>
+        <div class="panel mt-2">
+          <div class="panel-title">The split, decoded per model</div>
+          <div class="metric-tabs" id="probeChips"></div>
+          <canvas id="probeCanvas" width="960" height="430" style="width: 100%; height: auto; display: block;"></canvas>
+          <div class="arch-detail" id="probeDetail">
+            <h4><span class="tag">PROBE</span><span id="probeDetailTitle"></span></h4>
+            <p id="probeDetailText"></p>
+          </div>
+          <div class="chart-note">Schematic animation of the probe procedure; the centroid and ρ values shown are measured 3-track averages. Click a stage of the diagram for an explanation.</div>
+        </div>
+        <div class="callout">
+          <strong>Inversion = clean acoustic separation along the temporal axis.</strong>
+          The two acoustically supervised models are inverted (<i>ρ</i>&nbsp;&gt;&nbsp;1) — εar-VAE2 most
+          strongly (<i>ρ</i>&nbsp;=&nbsp;2.32), εar-VAE next (<i>ρ</i>&nbsp;=&nbsp;1.82) — while Levo&nbsp;2, SAME-L, and SA-Open are not (<i>ρ</i>&nbsp;&lt;&nbsp;1).
+          For εar-VAE2, the low-temporal-frequency (sustain) half decodes to <strong>brighter, higher-centroid</strong> audio
+          (harmonics, sustained tones), while the high-temporal-frequency (groove) half decodes to <strong>bass-concentrated,
+          lower-centroid</strong> audio (kick drums, rhythmic bass). This means the latent's temporal axis has achieved
+          a relatively clean factorization: <strong>sustained harmonic structure</strong> lives in the slow-varying components,
+          <strong>rhythmic groove</strong> lives in the fast-varying components — and the two are well-separated.
+        </div>
+        <div class="callout" style="border-left-color: var(--ink-3); background: var(--bg-raised);">
+          <strong>Scope.</strong> This is a <strong>correlational diagnostic, not a causal mechanism or quality claim</strong>:
+          it rests on 3 tracks, spectral centroid measures brightness rather than rhythm or onsets per se,
+          model configurations differ, and decoding a band-limited latent is outside the decoder's training distribution.
+          A causal study requires matched architectures, loss ablations, and a larger track set.
+        </div>
+        <div class="panel mt-3">
+          <div class="panel-title">Quantitative summary — inversion ratio <i>ρ</i></div>
+          <div class="tbl-wrap" style="margin-top:0">
+            <table class="booktabs" id="probeTable"></table>
+          </div>
+          <div class="chart-note">Spectral centroid of the separately decoded low- / high-temporal-frequency latent halves, averaged over 3 tracks. <i>ρ</i>&nbsp;=&nbsp;centroid<sub>low</sub>&nbsp;/&nbsp;centroid<sub>high</sub>; <i>ρ</i>&nbsp;&gt;&nbsp;1 ("inverted") means the fast-varying latent carries lower-pitched, bass-concentrated audio — i.e. rhythmic content concentrates in the rapidly varying components while sustained harmonics concentrate in the slowly varying ones.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================= 07 audio ======================= -->
+    <section class="block" id="audio">
+      <div class="container">
+        <div class="sec-head">
+          <span class="sec-numeral">07</span>
+          <h2>The difference: sand and water beyond the stone</h2>
+          <span class="sec-kicker">Listen &amp; compare</span>
+        </div>
+        <div class="callout" style="border-left-color: var(--blue); background: var(--blue-ghost); margin-bottom: 20px;">
+          <strong>🎧 Listening tip.</strong>&nbsp;
+          For the best comparison experience, we recommend stereo playback through monitors or headphones
+          with reasonably flat full-range response. If your playback device has a notably uneven frequency curve,
+          you may consider obtaining a corrective EQ profile from
+          <a href="https://autoeq.app/" target="_blank" rel="noopener"><strong>AutoEQ</strong></a>.
+          A moderate listening level (around 50&nbsp;dB SPL or above) helps reveal subtle acoustic detail
+          such as spatial cues, noise floor differences, and harmonic tails.
+        </div>
+        <p class="body-copy">
+          Switch between versions while playing — playback position is preserved for direct A/B comparison.
+          Gen Demos are full-length songs generated on εar-VAE2 latents; reconstruction clips are 30&nbsp;s 48&nbsp;kHz stereo
+          excerpts from the Song Describer Dataset; downstream generation clips are 45&nbsp;s matched-window pairs.
+          Every clip is <strong>loudness-normalized to −14&nbsp;LUFS</strong>
+          (EBU R128 linear gain, true peak ≤ −1.5&nbsp;dBTP) so comparisons are level-fair.
+        </p>
+        <div class="audio-sub" id="audio-gen">
+          <h3>Gen Demos</h3>
+          <span class="sub-note">full songs generated on εar-VAE2 latents</span>
+        </div>
+        <a class="jump-link jump-up" href="#results">↑ §05 results</a>
+        <div id="showPlayers"></div>
+        <div class="audio-sub" id="audio-recon">
+          <h3>Reconstruction</h3>
+          <span class="sub-note">encode → decode fidelity · 6 systems</span>
+        </div>
+        <a class="jump-link jump-up" href="#results">↑ §05 results</a>
+        <div id="reconPlayers"></div>
+        <div class="audio-sub" id="audio-downstream">
+          <h3>Downstream generation</h3>
+          <span class="sub-note">Levo 2 VAE vs εar-VAE2 · same renderer architecture, retrained per latent space</span>
+        </div>
+        <a class="jump-link jump-up" href="#results">↑ §05 results</a>
+        <div id="genPlayers"></div>
+        <div class="audio-sub" id="latent-probe">
+          <h3>Latent Temporal-Frequency Probe</h3>
+          <span class="sub-note">Split the latent into slow- and fast-varying halves along time, then decode each half separately. <strong>Low</strong> = slowly varying latent → sustain/harmonic content; <strong>High</strong> = rapidly varying latent → rhythmic groove/transient content. For inverted models (εar-VAE2, εar-VAE), "Low" sounds brighter and "High" sounds more bass-heavy.</span>
+        </div>
+        <a class="jump-link jump-up" href="#probe">↑ §06 probe discussion</a>
+        <div id="probePlayers"></div>
+        <div class="audio-sub" id="audio-refiner">
+          <h3>Refiner Ablation</h3>
+          <span class="sub-note">Ground truth vs without refiner vs with refiner — selected reconstruction examples</span>
+        </div>
+        <a class="jump-link jump-up" href="#refiner">↑ §04 refiner</a>
+        <div id="refinerPlayers"></div>
+        <div class="audio-sub" id="audio-bandmode">
+          <h3>Banded Refiner Ablation</h3>
+          <span class="sub-note">Banded (ours) vs unconstrained refiner · same frozen decoder</span>
+        </div>
+        <a class="jump-link jump-up" href="#refiner">↑ §04 refiner</a>
+        <div id="bandPlayers"></div>
+        <p class="small-note mt-2">
+          The stereo polar field visualization in each player is adapted from the open-source
+          <a href="https://github.com/Eps-Acoustic-Revolution-Lab/EAR-Audio-Preview" target="_blank" rel="noopener">EAR-Audio-Preview</a>
+          project (polar sample mode) by Epsilon Acoustic Revolution Lab.
+        </p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ======================= footer ======================= -->
+  <footer>
+    <div class="container">
+      <div class="foot-grid">
+        <div>
+          <div class="foot-h">Cite</div>
+          <pre class="bibtex" id="bibtexBlock"></pre>
+        </div>
+        <div>
+          <div class="foot-h">Links</div>
+          <div class="foot-links">
+            <a data-link-paper href="assets/paper.pdf" target="_blank" rel="noopener">Paper (PDF)</a>
+            <a class="requires-deanonymize" data-link-arxiv href="#" target="_blank" rel="noopener">arXiv</a>
+            <a class="requires-deanonymize" data-link-github href="#" target="_blank" rel="noopener">Code &amp; models</a>
+            <a class="requires-deanonymize" data-link-hf href="#" target="_blank" rel="noopener">Hugging Face</a>
+            <a href="https://github.com/Eps-Acoustic-Revolution-Lab/EAR-Audio-Preview" target="_blank" rel="noopener">EAR-Audio-Preview ↗</a>
+            <a href="https://github.com/Eps-Acoustic-Revolution-Lab" target="_blank" rel="noopener">Epsilon Acoustic Revolution Lab ↗</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="config.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/spectrum.js"></script>
+  <script src="js/arch.js"></script>
+  <script src="js/snakebeta.js"></script>
+  <script src="js/refiner.js"></script>
+  <script src="js/probe.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
