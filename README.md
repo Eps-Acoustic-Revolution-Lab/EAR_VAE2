@@ -12,6 +12,10 @@
 
 A spectral-domain music autoencoder compressing **48 kHz stereo** audio into a **128-dimensional** continuous latent sequence at **25 Hz** — a **1920× temporal downsampling** — through two frequency-aware components: **Spec-SnakeBeta** (per-bin periodic activation with log-frequency initialization) and a **Duplex-Aware Refiner** (band-specific magnitude/phase correction motivated by psychoacoustic masking).
 
+You could check more demos and design cues here: [[Demo Page](https://eps-acoustic-revolution-lab.github.io/EAR_VAE2/)].
+
+We fully believe that water and sand is equally import as the stone to fill the bottleneck, especially for music.
+
 ## ✨ Highlights
 
 - 🎵 **Complex spectral domain** — operates on STFT real/imag channels, not raw waveform
@@ -33,7 +37,7 @@ Reconstruction quality on **Song Describer Dataset** (546 full tracks, 48 kHz st
 | **εar-VAE2 (base)** | 10.9 | 0.916 | 0.572 | 0.966 |
 | **εar-VAE2 (full)** | **11.3** | **0.870** | **0.461** | **0.973** |
 
-> εar-VAE2 (full) achieves the best spectral fidelity (STFT Dist, Mel Dist) among all systems while matching the phase coherence (CCPC) of the larger εar-VAE baseline.
+> εar-VAE2 (full) achieves the best spectral fidelity (STFT Dist, Mel Dist) among all systems while matching the phase coherence (CCPC) of εar-VAE baseline.
 
 ## Spec-SnakeBeta
 
