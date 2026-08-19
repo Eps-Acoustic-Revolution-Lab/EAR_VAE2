@@ -381,12 +381,17 @@
               percussive onsets, transient attacks, and beat-level energy fluctuations.</p>
           </div>
         </div>
+        <div class="callout mt-2">
+          <strong>A separation of musical role along time — not a frequency split.</strong>
+          Both halves are full-bandwidth decodes; a clean factorization means each one still stands on its own as
+          <strong>coherent, listenable music</strong> — a sustained melodic/harmonic layer and an intelligible rhythmic
+          groove, not a chaotic filtered residue. <strong>The evidence is in the listening: compare the two halves per
+          case below.</strong>
+        </div>
         <p class="body-copy mt-2">
-          Each half is then <strong>decoded separately</strong> through the model's decoder. If a model cleanly separates
-          sustained content from rhythmic content along the temporal axis of its latent, the two decoded signals will show
-          distinct spectral profiles. We measure this separation with spectral centroid:
+          Each half is <strong>decoded separately</strong> and, above all, <strong>listened to</strong> per case; the
+          schematic below traces the procedure.
         </p>
-        <div class="formula mt-2"><i>ρ</i>&nbsp;=&nbsp;centroid(<i>z</i><sub>low</sub>&nbsp;→&nbsp;audio)&nbsp;/&nbsp;centroid(<i>z</i><sub>high</sub>&nbsp;→&nbsp;audio)</div>
         <div class="panel mt-2">
           <div class="panel-title">The split, decoded per model</div>
           <div class="metric-tabs" id="probeChips"></div>
@@ -397,16 +402,6 @@
           </div>
           <div class="chart-note">Schematic animation of the probe procedure; the centroid and ρ values shown are measured 3-track averages. Click a stage of the diagram for an explanation.</div>
         </div>
-        <div class="callout">
-          <strong>Inversion = clean acoustic separation along the temporal axis.</strong>
-          The two acoustically supervised models are inverted (<i>ρ</i>&nbsp;&gt;&nbsp;1) — εar-VAE2 most
-          strongly (<i>ρ</i>&nbsp;=&nbsp;2.32), εar-VAE next (<i>ρ</i>&nbsp;=&nbsp;1.82) — while Levo&nbsp;2, SAME-L, and SA-Open are not (<i>ρ</i>&nbsp;&lt;&nbsp;1).
-          For εar-VAE2, the low-temporal-frequency (sustain) half decodes to <strong>brighter, higher-centroid</strong> audio
-          (harmonics, sustained tones), while the high-temporal-frequency (groove) half decodes to <strong>bass-concentrated,
-          lower-centroid</strong> audio (kick drums, rhythmic bass). This means the latent's temporal axis has achieved
-          a relatively clean factorization: <strong>sustained harmonic structure</strong> lives in the slow-varying components,
-          <strong>rhythmic groove</strong> lives in the fast-varying components — and the two are well-separated.
-        </div>
         <div class="callout" style="border-left-color: var(--ink-3); background: var(--bg-raised);">
           <strong>Scope.</strong> This is a <strong>correlational diagnostic, not a causal mechanism or quality claim</strong>:
           it rests on 3 tracks, spectral centroid measures brightness rather than rhythm or onsets per se,
@@ -414,11 +409,11 @@
           A causal study requires matched architectures, loss ablations, and a larger track set.
         </div>
         <div class="panel mt-3">
-          <div class="panel-title">Quantitative summary — inversion ratio <i>ρ</i></div>
+          <div class="panel-title">Spectral-centroid ratio <i>ρ</i> — supplementary</div>
           <div class="tbl-wrap" style="margin-top:0">
             <table class="booktabs" id="probeTable"></table>
           </div>
-          <div class="chart-note">Spectral centroid of the separately decoded low- / high-temporal-frequency latent halves, averaged over 3 tracks. <i>ρ</i>&nbsp;=&nbsp;centroid<sub>low</sub>&nbsp;/&nbsp;centroid<sub>high</sub>; <i>ρ</i>&nbsp;&gt;&nbsp;1 ("inverted") means the fast-varying latent carries lower-pitched, bass-concentrated audio — i.e. rhythmic content concentrates in the rapidly varying components while sustained harmonics concentrate in the slowly varying ones.</div>
+          <div class="chart-note">A shallow cross-check only. <i>ρ</i>&nbsp;=&nbsp;centroid(<i>z</i><sub>low</sub>&nbsp;→&nbsp;audio)&nbsp;/&nbsp;centroid(<i>z</i><sub>high</sub>&nbsp;→&nbsp;audio), averaged over 3 tracks; <i>ρ</i>&nbsp;&gt;&nbsp;1 vs&nbsp;&lt;&nbsp;1 gives only the <em>direction</em> of a brightness shift between the two decoded halves, not a ranking. It corroborates that some acoustic reorganization occurs but does <strong>not</strong> directly measure the sustain-vs-groove separation — the per-case listening above is the real evidence.</div>
         </div>
       </div>
     </section>
@@ -467,7 +462,8 @@
         <div id="genPlayers"></div>
         <div class="audio-sub" id="latent-probe">
           <h3>Latent Temporal-Frequency Probe</h3>
-          <span class="sub-note">Split the latent into slow- and fast-varying halves along time, then decode each half separately. <strong>Low</strong> = slowly varying latent → sustain/harmonic content; <strong>High</strong> = rapidly varying latent → rhythmic groove/transient content. For inverted models (εar-VAE2, εar-VAE), "Low" sounds brighter and "High" sounds more bass-heavy.</span>
+          <span class="sub-note sub-note-strong"><strong>Low</strong> (slow-varying) → sustained layer: steady loudness, clear melodic long lines.<br><strong>High</strong> (fast-varying) → groove layer: strong rhythmic pulse, surging low-end.</span>
+    
         </div>
         <a class="jump-link jump-up" href="#probe">↑ §06 probe discussion</a>
         <div id="probePlayers"></div>

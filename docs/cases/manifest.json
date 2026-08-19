@@ -173,44 +173,52 @@
   ],
   "show": [
     {
-      "id": "show_demo1",
-      "title": "Demo 1",
-      "files": { "ours": "show/demo1.mp3" }
-    },
-    {
-      "id": "show_demo2",
-      "title": "Demo 2",
-      "files": { "ours": "show/demo2.mp3" }
-    },
-    {
-      "id": "show_demo3",
-      "title": "Demo 3",
-      "files": { "ours": "show/demo3.mp3" }
-    },
-    {
-      "id": "show_demo4",
-      "title": "Demo 4",
-      "files": { "ours": "show/demo4.mp3" }
-    },
-    {
-      "id": "show_demo5",
-      "title": "Demo 5",
-      "files": { "ours": "show/demo5.mp3" }
-    },
-    {
-      "id": "show_demo6",
-      "title": "Demo 6",
-      "files": { "ours": "show/demo6.mp3" }
-    },
-    {
       "id": "show_demo7",
-      "title": "Demo 7",
-      "files": { "ours": "show/demo7.mp3" }
+      "title": "Jazz",
+      "files": { "ours": "show/demo7.mp3" },
+      "hints": [{"text": "Vocal chamber reverb"}, {"text": "Natural noise floor"}]
     },
     {
       "id": "show_demo8",
-      "title": "Demo 8",
-      "files": { "ours": "show/demo8.mp3" }
+      "title": "K Pop",
+      "files": { "ours": "show/demo8.mp3" },
+      "hints": [{"text": "Tuned vocal"}, {"text": "Stereo leads"}]
+    },
+    {
+      "id": "show_demo2",
+      "title": "Funk",
+      "files": { "ours": "show/demo2.mp3" },
+      "hints": [{"text": "Bass slap rhythm"}]
+    },
+    {
+      "id": "show_demo3",
+      "title": "Gospel Fusion",
+      "files": { "ours": "show/demo3.mp3" },
+      "hints": [{"text": "Hall reverb decay"}]
+    },
+    {
+      "id": "show_demo1",
+      "title": "C Pop",
+      "files": { "ours": "show/demo1.mp3" },
+      "hints": [{"text": "Mixing layers"}]
+    },
+    {
+      "id": "show_demo4",
+      "title": "Rock",
+      "files": { "ours": "show/demo4.mp3" },
+      "hints": [{"text": "Guitar harmonic"}]
+    },
+    {
+      "id": "show_demo5",
+      "title": "Disco",
+      "files": { "ours": "show/demo5.mp3" },
+      "hints": [{"text": "Vocal belting fidelity"}]
+    },
+    {
+      "id": "show_demo6",
+      "title": "Hiphop",
+      "files": { "ours": "show/demo6.mp3" },
+      "hints": [{"text": "Sub distorted synth bass"}]
     }
   ],
   "latent_probe": [

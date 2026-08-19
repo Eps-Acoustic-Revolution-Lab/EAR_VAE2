@@ -220,10 +220,11 @@
     var pt = document.getElementById("probeTable");
     if (pt && D.latentProbe) {
       var ph = "<thead><tr>" + D.latentProbe.head.map(function (x) { return "<th>" + x + "</th>"; }).join("") + "</tr></thead><tbody>";
+      /* no "best" cell highlight here: rho is a shallow corroboration, not a ranking */
       D.latentProbe.rows.forEach(function (row) {
         ph += "<tr" + (row.ours ? ' class="ours"' : "") + ">" +
-              row.cells.map(function (c, ci) {
-                return "<td" + (ci === row.best ? ' class="best"' : "") + ">" + c + "</td>";
+              row.cells.map(function (c) {
+                return "<td>" + c + "</td>";
               }).join("") + "</tr>";
       });
       pt.innerHTML = ph + "</tbody>";

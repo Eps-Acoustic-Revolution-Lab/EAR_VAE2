@@ -547,6 +547,11 @@ table.booktabs .approx { font-weight: 700; color: var(--ink-3); margin-left: 4px
 .audio-sub { display: flex; align-items: baseline; gap: 12px; margin: 36px 0 16px; scroll-margin-top: calc(var(--nav-h) + 12px); }
 .audio-sub h3 { margin: 0; font-size: 18px; }
 .audio-sub .sub-note { font-size: 12px; color: var(--ink-3); }
+/* high-contrast, perceptual note (probe): reads as primary text, not a muted aside */
+.audio-sub .sub-note.sub-note-strong {
+  color: var(--ink); font-size: 13px; line-height: 1.62; max-width: 66ch;
+}
+.audio-sub .sub-note.sub-note-strong strong { color: var(--blue); font-weight: 700; }
 
 /* ---------- in-section cross links (discussion ↔ cases) ---------- */
 .jump-row { display: flex; flex-wrap: wrap; gap: 6px 22px; margin-top: 16px; }
@@ -596,7 +601,24 @@ table.booktabs .approx { font-weight: 700; color: var(--ink-3); margin-left: 4px
 .play-btn .icon-pause { display: none; }
 .player.playing .play-btn .icon-pause { display: block; }
 .player.playing .play-btn .icon-play { display: none; }
-.player.loading .play-btn { opacity: .45; pointer-events: none; }
+
+/* preloading a case: gate the transport + version switches behind a spinner
+   so a case only becomes playable once every comparison version is resident */
+.player.loading .play-btn { pointer-events: none; position: relative; }
+.player.loading .play-btn svg { visibility: hidden; }
+.player.loading .play-btn::after {
+  content: ""; position: absolute; inset: 0; margin: auto;
+  width: 15px; height: 15px; border-radius: 50%;
+  border: 2px solid var(--blue-soft); border-top-color: var(--blue);
+  animation: btnspin .72s linear infinite;
+}
+@keyframes btnspin { to { transform: rotate(360deg); } }
+.player.loading .version-chips,
+.player.loading .probe-controls { opacity: .55; }
+.player.loading .vchip,
+.player.loading .band-toggle-track,
+.player.loading .band-toggle-label { pointer-events: none; }
+@media (prefers-reduced-motion: reduce) { .player.loading .play-btn::after { animation: none; } }
 
 .seek-wrap { flex: 1; display: flex; align-items: center; gap: 10px; }
 .seek-wrap input[type="range"] { min-width: 60px; }
@@ -609,6 +631,39 @@ table.booktabs .approx { font-weight: 700; color: var(--ink-3); margin-left: 4px
   padding: 30px; text-align: center; color: var(--ink-3);
   font-size: 13.5px; background: var(--bg-raised);
 }
+
+/* ---------- progressive case reveal (show more) ---------- */
+.player-collapsed { display: none !important; }
+@keyframes playerReveal {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.player-revealing { animation: playerReveal .5s cubic-bezier(.22, .61, .36, 1) both; }
+/* collapse: fade the cards out while the grid animates its own height down
+   (.is-collapsing), so the elements below rise smoothly rather than snapping up */
+@keyframes playerCollapse {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+.player-collapsing { animation: playerCollapse .3s ease both; pointer-events: none; }
+.player-grid.is-collapsing { overflow: hidden; transition: height .34s cubic-bezier(.4, 0, .7, .35); }
+@media (prefers-reduced-motion: reduce) { .player-revealing, .player-collapsing { animation: none; } }
+
+.show-more-wrap {
+  display: flex; justify-content: center;
+  margin-top: 16px;
+}
+.show-more-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: var(--font-sans); font-size: 13px; font-weight: 600; letter-spacing: .02em;
+  padding: 9px 20px; cursor: pointer;
+  color: var(--blue); background: var(--bg-raised);
+  border: 1px solid var(--line-strong); border-radius: 999px;
+  transition: border-color .15s, background-color .15s, color .15s;
+}
+.show-more-btn:hover { border-color: var(--blue); background: var(--blue-ghost); }
+.show-more-chevron { width: 15px; height: 15px; flex: none; transition: transform .2s ease; }
+.show-more-btn.is-expanded .show-more-chevron { transform: rotate(180deg); }
 
 /* ---------- footer ---------- */
 footer { margin-top: 84px; border-top: 1px solid var(--line); padding: 40px 0 52px; }
@@ -683,3 +738,5 @@ pre.bibtex {
   flex-shrink: 0;
 }
 .listen-hint:hover .listen-hint-time { background: var(--blue-soft); }
+/* timeless "listen-for" cue: the badge is a small play glyph, not a timestamp */
+.listen-hint-cue .listen-hint-time { font-size: 8px; padding: 2px 6px; line-height: 1; }

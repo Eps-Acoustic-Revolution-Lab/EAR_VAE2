@@ -65,6 +65,7 @@
     this.dragging = false;
     this.playIntent = false;                /* "should be playing" — survives rapid version hops */
     this.posTrack = { t: 0 };               /* last known position of any played version */
+    this._loads = 0;                        /* in-flight fetch count (gates the loading state) */
     this._skipChips = !!skipChips;
     this._build();
     REGISTRY.push(this);
@@ -157,9 +158,19 @@
     } catch (e) { /* element still plays directly if graph wiring fails */ }
   };
 
-  Player.prototype._setLoading = function (on) {
-    this.root.classList.toggle("loading", on);
-    if (on) this.timeLab.textContent = "loading…";
+  /* reference-counted loading state: stays on until every in-flight fetch
+     resolves, so preloading several comparison versions shows one steady
+     spinner instead of flickering off after the first file lands */
+  Player.prototype._beginLoad = function () {
+    this._loads++;
+    if (this._loads === 1) {
+      this.root.classList.add("loading");
+      this.timeLab.textContent = "loading…";
+    }
+  };
+  Player.prototype._endLoad = function () {
+    if (this._loads > 0) this._loads--;
+    if (this._loads === 0) this.root.classList.remove("loading");
   };
 
   /* fetch the audio as a blob URL (keeps direct file URLs out of the DOM) */
@@ -169,7 +180,7 @@
     if (rec.loading) { rec.waiters.push(cb); return; }
     rec.loading = true;
     rec.waiters = [cb];
-    this._setLoading(true);
+    this._beginLoad();
     var self = this;
     fetch(rec.src)
       .then(function (r) { if (!r.ok) throw new Error("http " + r.status); return r.blob(); })
@@ -178,7 +189,7 @@
         rec.el.src = rec.blobUrl;
         rec.ready = true;
         rec.loading = false;
-        self._setLoading(false);
+        self._endLoad();
         var ws = rec.waiters.slice();
         rec.waiters = [];
         ws.forEach(function (w) { w(rec.el); });
@@ -189,11 +200,26 @@
         rec.el.src = rec.src;
         rec.ready = true;
         rec.loading = false;
-        self._setLoading(false);
+        self._endLoad();
         var ws = rec.waiters.slice();
         rec.waiters = [];
         ws.forEach(function (w) { w(rec.el); });
       });
+  };
+
+  /* preload every comparison version for this case, then fire cb once —
+     playback is gated on this so version switches never stall on a fetch */
+  Player.prototype._prepareAll = function (cb) {
+    var self = this;
+    var keys = this.versions.map(function (v) { return v.key; });
+    var pending = keys.length;
+    if (!pending) { if (cb) cb(); return; }
+    var fired = false;
+    function one() {
+      pending--;
+      if (pending <= 0 && !fired) { fired = true; if (cb) cb(); }
+    }
+    keys.forEach(function (k) { self._prepare(k, one); });
   };
 
   /* switch version, preserving playback position and play intent —
@@ -250,7 +276,10 @@
     }
     ensureCtx();
     var self = this;
-    this._prepare(this.current, function (a) {
+    /* gate playback on all comparison versions being resident so that
+       switching between them mid-play is instant (no fetch stall) */
+    this._prepareAll(function () {
+      var a = self.media[self.current].el;
       self._hookAudio(self.media[self.current]);
       REGISTRY.forEach(function (p) { if (p !== self) p.stop(); });
       a.play();
@@ -574,12 +603,19 @@
 
     if (o.hints && o.hints.length) {
       o.hints.forEach(function (h) {
-        var hBtn = el("button", "listen-hint");
-        var timeSpan = el("span", "listen-hint-time", fmtTime(h.t));
+        /* time-anchored hint → seek to h.t; timeless "listen-for" cue (no t) →
+           a ▶ badge that just starts playback so the whole demo is auditioned */
+        var hasTime = typeof h.t === "number";
+        var hBtn = el("button", "listen-hint" + (hasTime ? "" : " listen-hint-cue"));
+        var badge = el("span", "listen-hint-time", hasTime ? fmtTime(h.t) : "▶");
         var textSpan = el("span", null, h.text);
-        hBtn.appendChild(timeSpan);
+        hBtn.appendChild(badge);
         hBtn.appendChild(textSpan);
         hBtn.addEventListener("click", function () {
+          if (!hasTime) {
+            if (!player._isPlaying()) player.toggle();
+            return;
+          }
           var rec = player.media[player.current];
           if (!rec || !rec.ready) {
             player._prepare(player.current, function (a) {
@@ -605,6 +641,98 @@
 
   function placeholder(mount, msg) {
     mount.appendChild(el("div", "audio-placeholder", msg));
+  }
+
+  /* progressive reveal: keep only the first DEFAULT_VISIBLE cards, and toggle
+     the rest with a show-more / show-less button that fans them in as a waterfall */
+  var DEFAULT_VISIBLE = 2;
+  function installShowMore(mount, grid) {
+    var cards = Array.prototype.slice.call(grid.children);
+    if (cards.length <= DEFAULT_VISIBLE) return;
+    var hidden = cards.slice(DEFAULT_VISIBLE);
+    hidden.forEach(function (c) { c.classList.add("player-collapsed"); });
+
+    var wrap = el("div", "show-more-wrap");
+    var btn = el("button", "show-more-btn");
+    btn.type = "button";
+    btn.innerHTML =
+      '<span class="show-more-txt"></span>' +
+      '<svg class="show-more-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>';
+    var txt = btn.querySelector(".show-more-txt");
+    wrap.appendChild(btn);
+    mount.appendChild(wrap);
+
+    var expanded = false;
+    var settleTimer = 0;
+    var n = hidden.length;
+    var reduce = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+    function sync() {
+      txt.textContent = expanded ? "Show less" : ("Show " + n + " more");
+      btn.classList.toggle("is-expanded", expanded);
+      btn.setAttribute("aria-expanded", expanded ? "true" : "false");
+    }
+    sync();
+
+    btn.addEventListener("click", function () {
+      expanded = !expanded;
+      clearTimeout(settleTimer);
+      if (expanded) {
+        /* undo any interrupted collapse, then reveal with the waterfall fade */
+        grid.classList.remove("is-collapsing");
+        grid.style.height = "";
+        hidden.forEach(function (c, i) {
+          c.classList.remove("player-collapsed", "player-collapsing");
+          c.style.animationDelay = reduce ? "" : (i * 0.07).toFixed(2) + "s";
+          c.classList.add("player-revealing");
+        });
+        /* canvases were zero-sized while display:none — repaint once they lay out */
+        requestAnimationFrame(function () { redrawIdlePlayers(false); });
+        settleTimer = setTimeout(function () {
+          hidden.forEach(function (c) {
+            c.classList.remove("player-revealing");
+            c.style.animationDelay = "";
+          });
+          redrawIdlePlayers(false);
+        }, reduce ? 40 : 500 + n * 70 + 80);
+      } else if (reduce) {
+        hidden.forEach(function (c) {
+          c.classList.remove("player-revealing", "player-collapsing");
+          c.style.animationDelay = "";
+          c.classList.add("player-collapsed");
+        });
+        if (typeof btn.scrollIntoView === "function") btn.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      } else {
+        /* animate the GRID's own height from full down to visible-only, with
+           overflow:hidden, so the content below rises smoothly with the fade
+           instead of snapping up the instant the cards leave the flow */
+        var fullH = grid.scrollHeight;
+        hidden.forEach(function (c) { c.classList.add("player-collapsed"); });
+        var targetH = grid.scrollHeight;              /* height with only the visible cards */
+        hidden.forEach(function (c) { c.classList.remove("player-collapsed"); });
+
+        grid.classList.add("is-collapsing");
+        grid.style.height = fullH + "px";
+        void grid.offsetHeight;                        /* reflow so the transition has a start value */
+        hidden.forEach(function (c) {
+          c.classList.remove("player-revealing");
+          c.style.animationDelay = "";
+          c.classList.add("player-collapsing");
+        });
+        grid.style.height = targetH + "px";            /* triggers the height transition */
+
+        settleTimer = setTimeout(function () {
+          hidden.forEach(function (c) {
+            c.classList.remove("player-collapsing");
+            c.classList.add("player-collapsed");
+          });
+          grid.classList.remove("is-collapsing");
+          grid.style.height = "";
+          if (typeof btn.scrollIntoView === "function") btn.scrollIntoView({ block: "nearest", behavior: "smooth" });
+        }, 360);
+      }
+      sync();
+    });
   }
 
   /* --- Probe player: model chips + low/high toggle --- */
@@ -763,6 +891,7 @@
             hints: c.hints || []
           });
         });
+        installShowMore(reconMount, grid);
       } else {
         placeholder(reconMount, "Reconstruction examples are being prepared.");
       }
@@ -783,6 +912,7 @@
             hints: c.hints || []
           });
         });
+        installShowMore(genMount, grid2);
       } else {
         placeholder(genMount, "Generation examples are being prepared.");
       }
@@ -803,6 +933,7 @@
               hints: c.hints || []
             });
           });
+          installShowMore(showMount, grid3);
         } else {
           placeholder(showMount, "Showcase examples are being prepared.");
         }
@@ -820,6 +951,7 @@
               models: c.models
             });
           });
+          installShowMore(probeMount, grid4);
         } else {
           placeholder(probeMount, "Latent probe examples are being prepared.");
         }
@@ -843,6 +975,7 @@
               hints: c.hints || []
             });
           });
+          installShowMore(refinerMount, grid6);
         } else {
           placeholder(refinerMount, "Refiner ablation examples are being prepared.");
         }
@@ -865,6 +998,7 @@
               hints: c.hints || []
             });
           });
+          installShowMore(bandMount, grid5);
         } else {
           placeholder(bandMount, "Bandmode examples are being prepared.");
         }
