@@ -1,8 +1,8 @@
 # εar-VAE2 — Demo Page
 
-Static, zero-dependency demo page for *Frequency-Aware Spectral Autoencoding
-for High-Fidelity Music Reconstruction*. Plain HTML/CSS/JS — no build step,
-no frameworks, no external fonts or CDNs.
+Static, zero-dependency demo page for [*Fourier is Frontier: Frequency-Aware
+Autoencoding for High-Fidelity Music Reconstruction*](https://arxiv.org/abs/2608.19843).
+Plain HTML/CSS/JS — no build step, no frameworks, no external fonts or CDNs.
 
 ## Quick start (local)
 
@@ -37,13 +37,21 @@ ANONYMOUS: true,   // author row is simply hidden — nothing else is shown
 ANONYMOUS: false,  // authors below appear, and any non-empty links render
 ```
 
-Also in `config.js`: `authors`, `links.arxiv`, `links.github`,
-`links.huggingface` (empty links stay hidden), and the footer `bibtex`.
+The page currently ships de-anonymized (`ANONYMOUS: false`), since the paper is
+public on arXiv. Flipping the switch back is enough to re-anonymize the page for
+a subsequent double-blind submission — no markup changes needed.
+
+Also in `config.js`: `authors` and `affiliations` (hero author row — marks are
+added there only, so the footer keeps plain names), `links.paper` and
+`links.arxiv` (one shared button: arXiv wins once set, except while anonymous),
+`links.github`, `links.huggingface` (empty links stay hidden), and the footer
+`bibtex` / `bibtexAnonymous` (the citation renders in both states, so the
+anonymous variant is what withholds the author list).
 
 ## Audio cases
 
 Audio lives in `cases/` and is declared in `cases/manifest.json` with six
-sections: `reconstruction` (A/B across 6 systems), `generation` (Levo 2 VAE
+sections: `reconstruction` (A/B across 5 systems + ground truth), `generation` (LeVo 2 VAE
 vs εar-VAE2 pairs), `show` (single-version showcase cards), `latent_probe`,
 `refiner_ablation`, and `bandmode`.
 

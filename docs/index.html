@@ -51,6 +51,7 @@
         <div class="hero-title">Fourier is Frontier: Frequency-Aware Autoencoding<br />for High-Fidelity Music Reconstruction</div>
         <div class="hero-authors" data-authors-row>
           <span data-authors>Anonymous authors</span>
+          <span class="hero-affil" data-affiliations></span>
         </div>
         <p class="hero-lede">
           A spec-domain autoencoder compressing <strong>48&nbsp;kHz stereo</strong> audio into a
@@ -59,9 +60,8 @@
           <strong>Spec-SnakeBeta</strong> and a <strong>Duplex-Aware Refiner</strong>.
         </p>
         <div class="hero-actions">
-          <a class="btn btn-primary" data-link-paper href="assets/paper.pdf" target="_blank" rel="noopener">Read the paper</a>
+          <a class="btn btn-primary" data-link-paper href="#" target="_blank" rel="noopener">Read the paper</a>
           <a class="btn" href="#audio">Listen to examples</a>
-          <a class="btn" data-link-arxiv href="#" target="_blank" rel="noopener">arXiv</a>
           <a class="btn" data-link-github href="#" target="_blank" rel="noopener">Code</a>
           <a class="btn" data-link-hf href="#" target="_blank" rel="noopener">Models</a>
         </div>
@@ -274,7 +274,7 @@
           <div class="tbl-wrap" style="margin-top:0">
             <table class="booktabs" id="bandTable"></table>
           </div>
-          <div class="chart-note">Controlled refiner-only setting from the same frozen decoder. The banded head predicts ≈45% fewer residual dimensions, improves both spectral distances and three of four targeted spatial-cue errors, and receives a higher mean paired score from professional engineers; HF IPD remains within 0.6%. IPD/ILD are mean absolute deviations below 1.5&nbsp;kHz (LF) and above 4&nbsp;kHz (HF); the paired 1–10 rating is mapped to [0,1].</div>
+          <div class="chart-note">Controlled refiner-only setting from the same frozen decoder. The banded head predicts ≈45% fewer residual dimensions, improves both spectral distances and three of four targeted spatial-cue errors, and receives a higher mean paired score from professional engineers; HF IPD remains within 0.7%. IPD/ILD are mean absolute deviations below 1.5&nbsp;kHz (LF) and above 4&nbsp;kHz (HF); the paired 1–10 rating is mapped to [0,1].</div>
         </div>
       </div>
     </section>
@@ -327,7 +327,7 @@
             <div class="legend">
               <span><span class="swatch sw-blue"></span>εar-VAE2 (full)</span>
               <span><span class="swatch sw-mid"></span>εar-VAE2 (w/o Refiner)</span>
-              <span><span class="swatch sw-muted"></span>Levo 2 VAE</span>
+              <span><span class="swatch sw-muted"></span>LeVo 2 VAE</span>
             </div>
             <div class="chart-note">Axis range 5–8 for readability. 100 EN + 100 ZH generated songs, matched conditioning and CFG; the renderer is retrained per latent space.</div>
           </div>
@@ -337,7 +337,7 @@
             <div class="legend">
               <span><span class="swatch sw-blue"></span>εar-VAE2 (full)</span>
               <span><span class="swatch sw-mid"></span>εar-VAE2 (w/o Refiner)</span>
-              <span><span class="swatch sw-muted"></span>Levo 2 VAE</span>
+              <span><span class="swatch sw-muted"></span>LeVo 2 VAE</span>
             </div>
             <div class="chart-note">Truncated axis 3.5–4.6. The refiner improves every axis further over the base decoder — refinement benefits generated outputs, not only reconstruction.</div>
           </div>
@@ -400,11 +400,11 @@
             <h4><span class="tag">PROBE</span><span id="probeDetailTitle"></span></h4>
             <p id="probeDetailText"></p>
           </div>
-          <div class="chart-note">Schematic animation of the probe procedure; the centroid and ρ values shown are measured 3-track averages. Click a stage of the diagram for an explanation.</div>
+          <div class="chart-note">Schematic animation of the probe procedure; the centroid and ρ values shown are measured averages over our internal evaluation set. Click a stage of the diagram for an explanation.</div>
         </div>
         <div class="callout" style="border-left-color: var(--ink-3); background: var(--bg-raised);">
           <strong>Scope.</strong> This is a <strong>correlational diagnostic, not a causal mechanism or quality claim</strong>:
-          it rests on 3 tracks, spectral centroid measures brightness rather than rhythm or onsets per se,
+          it rests on a small internal evaluation set, spectral centroid measures brightness rather than rhythm or onsets per se,
           model configurations differ, and decoding a band-limited latent is outside the decoder's training distribution.
           A causal study requires matched architectures, loss ablations, and a larger track set.
         </div>
@@ -413,7 +413,7 @@
           <div class="tbl-wrap" style="margin-top:0">
             <table class="booktabs" id="probeTable"></table>
           </div>
-          <div class="chart-note">A shallow cross-check only. <i>ρ</i>&nbsp;=&nbsp;centroid(<i>z</i><sub>low</sub>&nbsp;→&nbsp;audio)&nbsp;/&nbsp;centroid(<i>z</i><sub>high</sub>&nbsp;→&nbsp;audio), averaged over 3 tracks; <i>ρ</i>&nbsp;&gt;&nbsp;1 vs&nbsp;&lt;&nbsp;1 gives only the <em>direction</em> of a brightness shift between the two decoded halves, not a ranking. It corroborates that some acoustic reorganization occurs but does <strong>not</strong> directly measure the sustain-vs-groove separation — the per-case listening above is the real evidence.</div>
+          <div class="chart-note">A shallow cross-check only. <i>ρ</i>&nbsp;=&nbsp;centroid(<i>z</i><sub>low</sub>&nbsp;→&nbsp;audio)&nbsp;/&nbsp;centroid(<i>z</i><sub>high</sub>&nbsp;→&nbsp;audio), averaged over our internal evaluation set; <i>ρ</i>&nbsp;&gt;&nbsp;1 vs&nbsp;&lt;&nbsp;1 gives only the <em>direction</em> of a brightness shift between the two decoded halves, not a ranking. It corroborates that some acoustic reorganization occurs but does <strong>not</strong> directly measure the sustain-vs-groove separation — the per-case listening above is the real evidence.</div>
         </div>
       </div>
     </section>
@@ -450,13 +450,13 @@
         <div id="showPlayers"></div>
         <div class="audio-sub" id="audio-recon">
           <h3>Reconstruction</h3>
-          <span class="sub-note">encode → decode fidelity · 6 systems</span>
+          <span class="sub-note">encode → decode fidelity · 5 systems + ground truth</span>
         </div>
         <a class="jump-link jump-up" href="#results">↑ §05 results</a>
         <div id="reconPlayers"></div>
         <div class="audio-sub" id="audio-downstream">
           <h3>Downstream generation</h3>
-          <span class="sub-note">Levo 2 VAE vs εar-VAE2 · same renderer architecture, retrained per latent space</span>
+          <span class="sub-note">LeVo 2 VAE vs εar-VAE2 · same renderer architecture, retrained per latent space</span>
         </div>
         <a class="jump-link jump-up" href="#results">↑ §05 results</a>
         <div id="genPlayers"></div>
@@ -482,7 +482,7 @@
         <p class="small-note mt-2">
           The stereo polar field visualization in each player is adapted from the open-source
           <a href="https://github.com/Eps-Acoustic-Revolution-Lab/EAR-Audio-Preview" target="_blank" rel="noopener">EAR-Audio-Preview</a>
-          project (polar sample mode) by Epsilon Acoustic Revolution Lab.
+          project (polar sample mode).
         </p>
       </div>
     </section>
@@ -500,12 +500,10 @@
         <div>
           <div class="foot-h">Links</div>
           <div class="foot-links">
-            <a data-link-paper href="assets/paper.pdf" target="_blank" rel="noopener">Paper (PDF)</a>
-            <a class="requires-deanonymize" data-link-arxiv href="#" target="_blank" rel="noopener">arXiv</a>
+            <a data-link-paper href="#" target="_blank" rel="noopener">Paper</a>
             <a class="requires-deanonymize" data-link-github href="#" target="_blank" rel="noopener">Code &amp; models</a>
             <a class="requires-deanonymize" data-link-hf href="#" target="_blank" rel="noopener">Hugging Face</a>
             <a href="https://github.com/Eps-Acoustic-Revolution-Lab/EAR-Audio-Preview" target="_blank" rel="noopener">EAR-Audio-Preview ↗</a>
-            <a href="https://github.com/Eps-Acoustic-Revolution-Lab" target="_blank" rel="noopener">Epsilon Acoustic Revolution Lab ↗</a>
           </div>
         </div>
       </div>

@@ -232,7 +232,7 @@ window.Charts = (function () {
       var lx = cx + (R + 26) * Math.cos(a), ly = cy + (R + 26) * Math.sin(a);
       txt(svg, lx, ly + 4, opts.axes[i], "radar-axis-label");
     }
-    /* series polygons — draw muted (Levo) last so it sits on top and is not
+    /* series polygons — draw muted (LeVo) last so it sits on top and is not
        hidden by the overlapping green polygons. */
     var drawOrder = opts.series.slice().sort(function (a, b) {
       return (a.cls === "s-muted" ? 1 : 0) - (b.cls === "s-muted" ? 1 : 0);

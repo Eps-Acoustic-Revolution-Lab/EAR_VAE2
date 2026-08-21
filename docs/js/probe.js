@@ -4,17 +4,17 @@
  * midpoint split → decode slow (z_low) / fast (z_high) halves
  * separately. Per-model decoded-content patterns follow the
  * measured inversion observation (inverted vs non-inverted);
- * centroid / ρ readouts are the measured 3-track averages.
+ * centroid / ρ readouts are the measured internal evaluation-set averages.
  * Canvas rendering, dpr-aware, theme-aware; animates only while
  * visible on screen.
  * ============================================================ */
 (function () {
   "use strict";
 
-  /* measured values (3-track averages) */
+  /* measured values (internal evaluation-set averages) */
   var MODELS = {
     ours: {
-      name: "εar-VAE2", rho: 2.32, cLow: 323, cHigh: 137, inverted: true,
+      name: "εar-VAE2", rho: 2.36, cLow: 323, cHigh: 137, inverted: true,
       /* schematic decoded-content profiles: bass/mid/high energy weights,
          transient = onset-stripe strength, harmonics = sustained-band strength */
       low:  { bass: 0.10, mid: 0.45, high: 0.45, transient: 0.05, harmonics: 1.00 },
@@ -26,7 +26,7 @@
       high: { bass: 0.62, mid: 0.30, high: 0.08, transient: 0.85, harmonics: 0.15 }
     },
     levo2: {
-      name: "Levo 2", rho: 0.53, cLow: 392, cHigh: 736, inverted: false,
+      name: "LeVo 2", rho: 0.53, cLow: 392, cHigh: 736, inverted: false,
       low:  { bass: 0.30, mid: 0.40, high: 0.30, transient: 0.55, harmonics: 0.70 },
       high: { bass: 0.18, mid: 0.32, high: 0.50, transient: 0.75, harmonics: 0.45 }
     },

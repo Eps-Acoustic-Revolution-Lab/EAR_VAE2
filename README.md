@@ -1,6 +1,12 @@
 # εar-VAE2
 
-[[Demo Page](https://eps-acoustic-revolution-lab.github.io/EAR_VAE2/)] - [[Paper (coming soon)](#)] - [[Models](https://huggingface.co/earlab/EAR_VAE2)]
+**Fourier is Frontier: Frequency-Aware Autoencoding for High-Fidelity Music Reconstruction**
+
+Kangdi Wang<sup>1</sup> · Yusheng Dai<sup>2</sup> · Jin Xu<sup>1†</sup>
+
+<sup>1</sup> Qwen Team, Alibaba &nbsp;&nbsp; <sup>2</sup> Monash University &nbsp;&nbsp; <sup>†</sup> Corresponding author
+
+[[Demo Page](https://eps-acoustic-revolution-lab.github.io/EAR_VAE2/)] - [[Paper](https://arxiv.org/abs/2608.19843)] - [[Models](https://huggingface.co/earlab/EAR_VAE2)]
 
 ---
 
@@ -65,8 +71,8 @@ cd EAR_VAE2
 # Install dependencies
 pip install -r requirements.txt
 
-# Download pretrained weights (coming soon)
-# huggingface-cli download eps-acoustic-revolution-lab/ear-vae2-small --local-dir checkpoints/
+# Download pretrained weights from https://huggingface.co/earlab/EAR_VAE2
+huggingface-cli download earlab/EAR_VAE2 --local-dir checkpoints/
 ```
 
 ## Usage
@@ -151,11 +157,14 @@ EAR_VAE2/
 ## Citation
 
 ```bibtex
-@inproceedings{earvae2,
-  title     = {Frequency-Aware Spectral Autoencoding for High-Fidelity Music Reconstruction},
-  author    = {Anonymous},
-  booktitle = {International Conference on Learning Representations (ICLR)},
-  year      = {2026}
+@misc{earvae2,
+  title         = {Fourier is Frontier: Frequency-Aware Autoencoding for High-Fidelity Music Reconstruction},
+  author        = {Kangdi Wang and Yusheng Dai and Jin Xu},
+  year          = {2026},
+  eprint        = {2608.19843},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.SD},
+  url           = {https://arxiv.org/abs/2608.19843}
 }
 ```
 
@@ -174,5 +183,3 @@ We gratefully acknowledge the following projects that inspired components of εa
 ## License
 
 This project is licensed under the [Apache License 2.0](LICENSE).
-
-Copyright 2026 Epsilon Acoustic Revolution Lab.

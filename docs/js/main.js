@@ -19,6 +19,32 @@
   }
 
   /* ---------------- anonymity / site config ---------------- */
+  var CORRESPONDING = "†";
+  /* real <sup> rather than the unicode superscripts: it keeps the numeric mark
+     and the dagger at the same optical height, and lets CSS size them. */
+  function sup(mark) { return '<sup class="mark">' + mark + "</sup>"; }
+
+  /* "Kangdi Wang¹ · Yusheng Dai² · Jin Xu¹†" — marks are appended for the hero
+     only, so the footer citation line can reuse the plain names. */
+  function markAuthors(names, aff) {
+    if (!aff || !aff.marks) return names.join(" · ");
+    var corr = aff.corresponding || [];
+    return names.map(function (n, i) {
+      var mark = (aff.marks[i] || "") + (corr.indexOf(i) >= 0 ? CORRESPONDING : "");
+      return n + (mark ? sup(mark) : "");
+    }).join(" · ");
+  }
+
+  function affiliationLegend(aff) {
+    if (!aff || !aff.institutions) return "";
+    var parts = aff.institutions.map(function (name, i) {
+      return sup(i + 1) + " " + name;
+    });
+    if ((aff.corresponding || []).length) parts.push(sup(CORRESPONDING) + " Corresponding author");
+    /* nbsp: plain spaces would collapse to a single gap in HTML */
+    return parts.join("&nbsp;&nbsp;&nbsp;");
+  }
+
   function applyConfig() {
     var cfg = window.SITE_CONFIG || {};
     var anon = !!cfg.ANONYMOUS;
@@ -27,17 +53,25 @@
     /* anonymous mode: simply hide the author row — no replacement text */
     var row = document.querySelector("[data-authors-row]");
     if (row) row.style.display = anon ? "none" : "";
+    var names = cfg.authors || [];
+    var aff = cfg.affiliations;
     var authorsEl = document.querySelector("[data-authors]");
-    if (authorsEl && !anon) authorsEl.textContent = (cfg.authors || []).join(" · ");
+    if (authorsEl && !anon) authorsEl.innerHTML = markAuthors(names, aff);
+    var affEl = document.querySelector("[data-affiliations]");
+    if (affEl) affEl.innerHTML = anon ? "" : affiliationLegend(aff);
 
     var footEl = document.querySelector("[data-footer-note]");
     if (footEl) {
-      var names = (cfg.authors || []).join(" · ");
-      footEl.textContent = anon || !names ? "" : names + " — ";
+      /* footer keeps the plain names — no affiliation marks */
+      var footNames = names.join(" · ");
+      footEl.textContent = anon || !footNames ? "" : footNames + " — ";
     }
 
     var links = cfg.links || {};
-    [["[data-link-paper]", links.paper], ["[data-link-arxiv]", links.arxiv],
+    /* paper and arXiv share a single button: arXiv is canonical once posted,
+       but it de-anonymizes, so anonymous mode only ever offers the local PDF. */
+    var paperLink = (!anon && links.arxiv) || links.paper || "";
+    [["[data-link-paper]", paperLink],
      ["[data-link-github]", links.github], ["[data-link-hf]", links.huggingface]]
       .forEach(function (pair) {
         /* hero action buttons stay visible but disabled while a link is unset;
@@ -53,7 +87,8 @@
       });
 
     var bib = document.getElementById("bibtexBlock");
-    if (bib && cfg.bibtex) bib.textContent = cfg.bibtex;
+    var entry = anon ? cfg.bibtexAnonymous || cfg.bibtex : cfg.bibtex;
+    if (bib && entry) bib.textContent = entry;
   }
 
   /* ---------------- scrollspy ---------------- */

@@ -143,7 +143,17 @@ h1, h2, h3, h4 { font-family: var(--font-sans); font-weight: 700; line-height: 1
   margin: 0 auto; max-width: 720px;
   font-size: clamp(17px, 2.4vw, 22px); font-weight: 500; color: var(--ink-2);
 }
-.hero-authors { margin-top: 14px; font-size: 15px; color: var(--ink-3); }
+.hero-authors {
+  margin-top: 18px;
+  font-size: 18px; font-weight: 600; color: var(--blue);
+}
+.hero-affil {
+  display: block; margin-top: 7px;
+  font-size: 14px; font-weight: 500; color: var(--ink-2);
+}
+.hero-affil:empty { display: none; }
+/* keep the affiliation marks from inheriting the 600 weight at sup size */
+.hero-authors .mark, .hero-affil .mark { font-weight: 500; font-size: .68em; }
 .hero-lede {
   margin: 24px auto 0; max-width: 700px;
   font-size: 18px; color: var(--ink-2);

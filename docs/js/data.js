@@ -30,8 +30,8 @@ window.PAPER_DATA = (function () {
         text: "Runs at 44.1 kHz with a 21.5 Hz continuous latent. Cross-system values are reported at each model's native operating condition.",
         paper: "https://arxiv.org/abs/2407.14358" },
       vals: { sisdr: [6.7, 0],  stft: [1.016, 0], stftlog: [.089, 0], mel: [.612, 0], mellog: [.106, 0], ccpc: [.933, 0], spe: [.276, 0] } },
-    { key: "levo2",     name: "Levo 2", labelLines: ["Levo 2"], ours: false,
-      detail: { tag: "48 KHZ · 25 HZ", title: "Levo 2",
+    { key: "levo2",     name: "LeVo 2", labelLines: ["LeVo 2"], ours: false,
+      detail: { tag: "48 KHZ · 25 HZ", title: "LeVo 2",
         text: "Runs at 48 kHz with a 25.0 Hz continuous latent. Cross-system values are reported at each model's native operating condition.",
         paper: "https://arxiv.org/abs/2606.30642" },
       vals: { sisdr: [8.1, 0],  stft: [.971, 0], stftlog: [.086, 0], mel: [.599, 0], mellog: [.103, 0], ccpc: [.947, 0], spe: [.273, 0] } },
@@ -57,7 +57,7 @@ window.PAPER_DATA = (function () {
     axes: ["Melody", "Arrangement", "Musicality", "Vocals", "Instrumentation", "Mixing", "Structure"],
     min: 5, max: 8,
     series: [
-      { key: "levo2",     name: "Levo 2 VAE",            cls: "s-muted",
+      { key: "levo2",     name: "LeVo 2 VAE",            cls: "s-muted",
         values: [6.56, 6.88, 5.71, 6.88, 6.95, 6.59, 6.38] },
       { key: "ours_base", name: "εar-VAE2 (w/o Refiner)", cls: "s-mid",
         values: [6.88, 7.17, 6.04, 7.30, 7.19, 7.02, 6.75] },
@@ -69,7 +69,7 @@ window.PAPER_DATA = (function () {
     axes: ["Coherence", "Musicality", "Memorability", "Clarity", "Naturalness"],
     min: 3.5, max: 4.6,
     series: [
-      { key: "levo2",     name: "Levo 2 VAE",            cls: "s-muted",
+      { key: "levo2",     name: "LeVo 2 VAE",            cls: "s-muted",
         values: [4.31, 4.17, 4.24, 4.20, 4.10] },
       { key: "ours_base", name: "εar-VAE2 (w/o Refiner)", cls: "s-mid",
         values: [4.39, 4.25, 4.33, 4.29, 4.18] },
@@ -137,13 +137,13 @@ window.PAPER_DATA = (function () {
     headA: "Banded (ours)", headB: "Unconstrained"
   };
 
-  /* ---- latent temporal-frequency probe (3-track averages) ---- */
+  /* ---- latent temporal-frequency probe (internal evaluation-set averages) ---- */
   var latentProbe = {
     head: ["Model", "centroid_low (Hz)", "centroid_high (Hz)", "ρ", "inverted"],
     rows: [
-      { cells: ["εar-VAE2", "323", "137", "2.32", "✓"], ours: true,  best: 3 },
+      { cells: ["εar-VAE2", "323", "137", "2.36", "✓"], ours: true,  best: 3 },
       { cells: ["εar-VAE",      "477", "249", "1.82", "✓"], ours: false },
-      { cells: ["Levo 2",                               "392", "736", "0.53", "✗"], ours: false },
+      { cells: ["LeVo 2",                               "392", "736", "0.53", "✗"], ours: false },
       { cells: ["SAME-L",                               "391", "487", "0.79", "✗"], ours: false },
       { cells: ["SA-Open",                              "363", "393", "0.91", "✗"], ours: false }
     ]

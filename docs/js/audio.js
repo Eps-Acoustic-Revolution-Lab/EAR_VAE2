@@ -17,15 +17,15 @@
 
   var VERSION_LABELS = {
     gt: "Ground Truth", ours: "εar-VAE2", earvae: "εar-VAE",
-    same_l: "SAME-L", levo2: "Levo 2", sa_open: "SA-Open",
-    baseline: "Levo 2 VAE",
+    same_l: "SAME-L", levo2: "LeVo 2", sa_open: "SA-Open",
+    baseline: "LeVo 2 VAE",
     without_refiner: "Without Refiner", with_refiner: "With Refiner",
     "default": "Banded (ours)", noband: "Unconstrained"
   };
 
   var PROBE_MODEL_LABELS = {
     gt: "Ground Truth", ours: "εar-VAE2", earvae: "εar-VAE",
-    levo2: "Levo 2", samel: "SAME-L", saopen: "SA-Open"
+    levo2: "LeVo 2", samel: "SAME-L", saopen: "SA-Open"
   };
   var PROBE_MODEL_ORDER = ["gt", "ours", "earvae", "levo2", "samel", "saopen"];
 
