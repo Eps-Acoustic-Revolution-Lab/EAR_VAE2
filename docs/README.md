@@ -73,10 +73,12 @@ vs εar-VAE2 pairs), `show` (single-version showcase cards), `latent_probe`,
 - If the manifest is missing or a list is empty, that section degrades to a
   "coming soon" placeholder — the page never breaks.
 
-> **Format & loudness**: all clips are 320 kbps MP3 at 48 kHz, loudness-
-> normalized to **−14 LUFS** (EBU R128, linear gain, true peak ≤ −1.5 dBTP)
-> so A/B comparisons are level-fair. Lossless originals live outside the
-> deployable tree (`../.audio_orig/`).
+> **Format & loudness**: all clips are 320 kbps MP3 at 48 kHz. For cross-system
+> comparison (reconstruction, downstream generation), clips are loudness-
+> normalized to **−14 LUFS** (EBU R128, linear gain, true peak ≤ −1.5 dBTP) so
+> the A/B is level-fair. The remaining sections (refiner / banded-refiner
+> ablations, latent probe) are presented at their native decoded levels.
+> Lossless originals live outside the deployable tree (`../.audio_orig/`).
 
 ### Download deterrence (best effort on static hosting)
 

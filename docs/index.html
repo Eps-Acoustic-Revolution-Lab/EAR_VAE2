@@ -439,8 +439,10 @@
           Switch between versions while playing — playback position is preserved for direct A/B comparison.
           Gen Demos are full-length songs generated on εar-VAE2 latents; reconstruction clips are 30&nbsp;s 48&nbsp;kHz stereo
           excerpts from the Song Describer Dataset; downstream generation clips are 45&nbsp;s matched-window pairs.
-          Every clip is <strong>loudness-normalized to −14&nbsp;LUFS</strong>
-          (EBU R128 linear gain, true peak ≤ −1.5&nbsp;dBTP) so comparisons are level-fair.
+          <strong>For cross-system comparison — reconstruction and downstream generation</strong>, where εar-VAE2
+          is placed side by side with other systems — clips are <strong>loudness-normalized to −14&nbsp;LUFS</strong>
+          (EBU R128 linear gain, true peak ≤ −1.5&nbsp;dBTP) so the A/B is level-fair. The remaining
+          sections are presented at their native decoded levels.
         </p>
         <div class="audio-sub" id="audio-gen">
           <h3>Gen Demos</h3>
@@ -462,7 +464,7 @@
         <div id="genPlayers"></div>
         <div class="audio-sub" id="latent-probe">
           <h3>Latent Temporal-Frequency Probe</h3>
-          <span class="sub-note sub-note-strong"><strong>Low</strong> (slow-varying) → sustained layer: steady loudness, clear melodic long lines.<br><strong>High</strong> (fast-varying) → groove layer: strong rhythmic pulse, surging low-end.</span>
+          <span class="sub-note sub-note-strong"><strong>Low</strong> (slow-varying) → sustained layer: steady loudness, clear melodic long lines.<br><strong>High</strong> (fast-varying) → groove layer: strong rhythmic pulse, surging low-end.<br>Band decodes are <strong>not level-equalized</strong> — loudness differences across systems reflect real per-band energy.</span>
     
         </div>
         <a class="jump-link jump-up" href="#probe">↑ §06 probe discussion</a>
